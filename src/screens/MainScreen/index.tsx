@@ -8,7 +8,7 @@ import { styles } from './styles'
 
 const MainScreen = ({ navigation }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [status, setStatus] = useState('Not Recording');
+  const [status, setStatus] = useState('Não Gravando');
   const [hasAllPermissions, setHasAllPermissions] = useState(false);
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
@@ -86,9 +86,13 @@ const MainScreen = ({ navigation }) => {
       <Image source={require('../../assets/pixelPhone.png')} style={styles.pixelPhoneImage} />
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={handleRecording} style={isRecording? styles.recordingButton : styles.recordIdleButton} />
+        <Text style={styles.statusText}>Status: {status}</Text>
       </View>
-      <Text style={styles.statusText}>Status: {status}</Text>
-      <Button title="Go to Recordings" onPress={() => navigation.navigate('Recordings')} />
+      <View>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Recordings')}>
+          <Text style={styles.buttonText}>Minhas Gravações</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
