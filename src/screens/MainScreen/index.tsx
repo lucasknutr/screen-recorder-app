@@ -1,15 +1,16 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Button, Text } from 'react-native';
-import RecordScreen from 'react-native-record-screen';
+import { View, Button, Text, TouchableOpacity, Image } from 'react-native';
 import ScreenRecorder from 'react-native-screen-mic-recorder';
-import CameraRoll from '@react-native-camera-roll/camera-roll';
+import * as MediaLibrary from 'expo-media-library';
 import { requestAllPermissions } from '../../utils/permissions';
 import Toast from 'react-native-toast-message';
+import { styles } from './styles'
 
 const MainScreen = ({ navigation }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [status, setStatus] = useState('Not Recording');
   const [hasAllPermissions, setHasAllPermissions] = useState(false);
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
   useEffect(() => {
     const checkAndRequestPermissions = async () => {
@@ -20,12 +21,15 @@ const MainScreen = ({ navigation }) => {
         setHasAllPermissions(true);
       }
     }
-
     checkAndRequestPermissions();
   }, []);
   
 
   const startRecording = useCallback(async () => {
+    // @ts-ignore
+    if (permissionResponse.status !== 'granted') {
+      await requestPermission();
+    }
     if (!hasAllPermissions) {
       Toast.show({type: 'error', text1: 'Please grant all permissions'});
       return requestAllPermissions();
@@ -51,16 +55,11 @@ const MainScreen = ({ navigation }) => {
     
     const stopRecording = useCallback(async () => {
     try {
-      const res = await ScreenRecorder.stopRecording().catch((error) => {
-        console.warn(error)
-      })
+      const res = await ScreenRecorder.stopRecording();
     
-      const result = await CameraRoll.save(res, {
-        album: 'ScreenRecorder',
-        type: 'video',
-      });
+      await MediaLibrary.saveToLibraryAsync(res);
 
-      console.log('Video saved to camera roll', result);
+      console.log('Video saved to camera roll');
 
       Toast.show({type: 'success', text1: 'Gravacao encerrada com sucesso!'});
 
@@ -74,11 +73,21 @@ const MainScreen = ({ navigation }) => {
     
     }, []);
 
+    const handleRecording = () => {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    }
+
   return (
     <View>
-      <Button title="Iniciar Gravação" onPress={startRecording} disabled={isRecording} />
-      <Button title="Stop Recording" onPress={stopRecording} disabled={!isRecording} />
-      <Text>Status: {status}</Text>
+      <Image source={require('../../assets/pixelPhone.png')} style={styles.pixelPhoneImage} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleRecording} style={isRecording? styles.recordingButton : styles.recordIdleButton} />
+      </View>
+      <Text style={styles.statusText}>Status: {status}</Text>
       <Button title="Go to Recordings" onPress={() => navigation.navigate('Recordings')} />
     </View>
   );
