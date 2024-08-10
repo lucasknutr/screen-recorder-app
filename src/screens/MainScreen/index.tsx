@@ -23,7 +23,6 @@ const MainScreen = ({ navigation }) => {
     }
     checkAndRequestPermissions();
   }, []);
-  
 
   const startRecording = useCallback(async () => {
     // @ts-ignore
@@ -54,25 +53,24 @@ const MainScreen = ({ navigation }) => {
     }, [hasAllPermissions]);
     
     const stopRecording = useCallback(async () => {
-    try {
-      const res = await ScreenRecorder.stopRecording();
-    
-      await MediaLibrary.saveToLibraryAsync(res);
-
-      console.log('Video saved to camera roll');
-
-      Toast.show({type: 'success', text1: 'Gravacao encerrada com sucesso!'});
-
-      ScreenRecorder.deleteRecording(res);
-
-      setIsRecording(false);
-      setStatus("Salvo no Rolo da Camera")
-    } catch (e) {
-      Toast.show({type: 'error', text1: 'Falha ao tentar parar de gravar.'});
-    }
-    
-    }, []);
-
+      try {
+        const res = await ScreenRecorder.stopRecording();
+      
+        await MediaLibrary.saveToLibraryAsync(res);
+  
+        console.log('Video saved to camera roll');
+  
+        Toast.show({type: 'success', text1: 'Gravacao encerrada com sucesso!'});
+  
+        ScreenRecorder.deleteRecording(res);
+  
+        setIsRecording(false);
+        setStatus("Salvo no Rolo da Camera")
+      } catch (e) {
+        Toast.show({type: 'error', text1: 'Falha ao tentar parar de gravar.'});
+      }
+      
+      }, []);
     const handleRecording = () => {
       if (isRecording) {
         stopRecording();

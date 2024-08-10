@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Video from 'react-native-video';
+import VideoPlayer from 'react-native-video-player';
 import { RouteProp, useRoute } from '@react-navigation/native';
 
 type VideoPlayerScreenRouteProp = RouteProp<{ params: { videoPath: string } }, 'params'>;
