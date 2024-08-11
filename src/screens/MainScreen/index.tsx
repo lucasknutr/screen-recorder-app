@@ -16,7 +16,7 @@ const MainScreen = ({ navigation }) => {
     const checkAndRequestPermissions = async () => {
       const requested = await requestAllPermissions();
       if (!requested) {
-        Toast.show({type: 'error', text1: 'Please grant all permissions'});
+        Toast.show({type: 'error', text1: 'Por favor, garanta as permissões necessárias'});
       } else {
         setHasAllPermissions(true);
       }
@@ -30,19 +30,19 @@ const MainScreen = ({ navigation }) => {
       await requestPermission();
     }
     if (!hasAllPermissions) {
-      Toast.show({type: 'error', text1: 'Please grant all permissions'});
+      Toast.show({type: 'error', text1: 'Por favor, garanta as permissões necessárias'});
       return requestAllPermissions();
     }
     try {
       const res = await await ScreenRecorder.startRecording().catch((error) => {
-        console.warn(error) // handle native error
+        console.warn(error)
       })
       if (res === 'started') {
         setIsRecording(true);
         setStatus("Gravando...")
-        Toast.show({type: 'success', text1: 'Gravacao iniciada com sucesso!'});
+        Toast.show({type: 'success', text1: 'Gravação iniciada com sucesso! ✅'});
       } else {
-        Toast.show({type: 'error', text1: 'Falha ao gravar. Tente novamente.'});
+        Toast.show({type: 'error', text1: 'Falha ao gravar. Tente novamente. ❌'});
         setStatus("Falha ao gravar")
       }
     } catch (e) {
@@ -58,9 +58,9 @@ const MainScreen = ({ navigation }) => {
       
         await MediaLibrary.saveToLibraryAsync(res);
   
-        console.log('Video saved to camera roll');
+        console.log('Video salvo no rolo da camera com sucessoooooo');
   
-        Toast.show({type: 'success', text1: 'Gravacao encerrada com sucesso!'});
+        Toast.show({type: 'success', text1: 'Gravação encerrada com sucesso!'});
   
         ScreenRecorder.deleteRecording(res);
   

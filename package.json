@@ -32,7 +32,8 @@
     "react-native-share": "^10.2.1",
     "react-native-toast-message": "^2.2.0",
     "react-native-video": "^6.4.3",
-    "react-native-video-player": "^0.14.0"
+    "react-native-video-player": "^0.14.0",
+    "expo-av": "~14.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

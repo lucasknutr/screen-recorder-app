@@ -1,22 +1,23 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Video from 'react-native-video';
-import VideoPlayer from 'react-native-video-player';
-import { RouteProp, useRoute } from '@react-navigation/native';
-
-type VideoPlayerScreenRouteProp = RouteProp<{ params: { videoPath: string } }, 'params'>;
+import { Video } from 'expo-av';
+import { useRoute } from '@react-navigation/native';
 
 const VideoPlayerScreen = () => {
-  const route = useRoute<VideoPlayerScreenRouteProp>();
-  const { videoPath } = route.params;
+  const route = useRoute();
+  const { videoUri } = route.params; // pegar a uri do video da RecordingsListScreen
 
   return (
     <View style={styles.container}>
       <Video
-        source={{ uri: `file://${videoPath}` }}
-        style={styles.video}
-        controls={true}
+        source={{ uri: videoUri }}
+        rate={1.0}
+        volume={1.0}
+        isMuted={false}
         resizeMode="contain"
+        shouldPlay
+        useNativeControls
+        style={styles.video}
       />
     </View>
   );
@@ -25,8 +26,7 @@ const VideoPlayerScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#000',
+    backgroundColor: 'black',
   },
   video: {
     width: '100%',

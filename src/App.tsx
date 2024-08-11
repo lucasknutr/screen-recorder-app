@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/MainScreen';
 import Toast from 'react-native-toast-message';
 import RecordingListScreen from './screens/RecordingListScreen';
-import VideoPlayerScreen from './screens/VideoPlayerScreen';  // Don't forget to import this screen
+import VideoPlayerScreen from './screens/VideoPlayerScreen';  // TODO NÃO ESQUECER DE IMPORTAR ESSA TELA DEPOIS!!!
 
 const Stack = createStackNavigator();
 
