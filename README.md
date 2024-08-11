@@ -5,9 +5,10 @@ This is a simple screen + microphone recorder written in React Native. It also f
 
 >**Note**: Make sure you've given the right permissions for the application to work.
 
-## Compatibility
-# Android - ✅ FULLY COMPATIBLE
+# Compatibility
 
-# Android Studio / Windows / Arch Linux - ⚠️ PARTIALLY COMPATIBLE
+### Android - ✅ FULLY COMPATIBLE
 
-# iOS - ❌ COMPATIBILITY NOT VERIFIED
+### Android Studio / Windows / Arch Linux - ⚠️ PARTIALLY COMPATIBLE
+
+### iOS - ❌ COMPATIBILITY NOT VERIFIED
