@@ -14,8 +14,8 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Startup">
           <Stack.Screen name="Gravador de Tela" component={MainScreen} />
-          <Stack.Screen name="Minhas Gravações" component={RecordingListScreen} />
-          <Stack.Screen name="Player de Vídeo" component={VideoPlayerScreen} />
+          <Stack.Screen name="Recordings" component={RecordingListScreen} />
+          <Stack.Screen name="VideoPlayerScreen" component={VideoPlayerScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />

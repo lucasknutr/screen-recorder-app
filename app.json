@@ -10,9 +10,10 @@
           "useExoplayerRtsp": false,
           "useExoplayerSmoothStreaming": false,
           "useExoplayerHls": false,
-          "useExoplayerDash": false,
+          "useExoplayerDash": false
         }
       }
-    ]
+    ],
+    "expo-video"
   ]
 }

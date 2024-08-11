@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Button, Image } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
+import { Linking, Platform } from 'react-native';
+import * as IntentLauncher from 'expo-intent-launcher';
+import RNFS from 'react-native-fs';
+import FileViewer from 'react-native-file-viewer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Recording = {
   id: string;
   uri: string;
   filename: string;
-  creationTime: string; // New field to store date/time
-  thumbnailUri: string; // New field to store thumbnail URI
+  creationTime: number;
+  thumbnailUri: string | null;
 };
 
 const RecordingListScreen = () => {
   const [recordings, setRecordings] = useState<Recording[]>([]);
-  const navigation = useNavigation();
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
     const loadRecordings = async () => {
       try {
-        const albumName = 'DCIM'; // Ensure this is the correct album name
+        const albumName = 'Download';
         const album = await MediaLibrary.getAlbumAsync(albumName);
 
         if (album) {
@@ -28,18 +32,13 @@ const RecordingListScreen = () => {
             sortBy: 'creationTime',
           });
 
-          const recordingsData = await Promise.all(
-            media.assets.map(async (asset) => {
-              const thumbnail = await MediaLibrary.getAssetInfoAsync(asset.id);
-              return {
-                id: asset.id,
-                uri: asset.uri,
-                filename: asset.filename,
-                creationTime: new Date(asset.creationTime).toLocaleString(), // Format date/time
-                thumbnailUri: thumbnail.uri, // Assuming thumbnail is available in the asset info
-              };
-            })
-          );
+          const recordingsData = media.assets.map(asset => ({
+            id: asset.id,
+            uri: asset.uri,
+            filename: asset.filename,
+            creationTime: asset.creationTime,
+            thumbnailUri: asset.uri,
+          }));
 
           setRecordings(recordingsData);
         } else {
@@ -50,21 +49,70 @@ const RecordingListScreen = () => {
       }
     };
 
+    const loadFavorites = async () => {
+      try {
+        const storedFavorites = await AsyncStorage.getItem('favorites');
+        if (storedFavorites) {
+          setFavorites(JSON.parse(storedFavorites));
+        }
+      } catch (err) {
+        console.error('Falha ao carregar favoritos', err);
+      }
+    };
+
     loadRecordings();
+    loadFavorites();
   }, []);
 
-  const openVideo = (uri: string) => {
-    Linking.openURL(uri);
+  const openVideo = async (uri: string) => {
+    try {
+      if (Platform.OS === 'android') {
+        // Use FileProvider to create a content URI
+        const contentUri = await FileProvider.getUriForFile({
+          fileUri: uri,
+          authority: `com.screenrecorderapp.provider`, // Ensure this matches your AndroidManifest.xml
+        });
+  
+        const intent = {
+          action: IntentLauncher.ACTION_VIEW,
+          data: contentUri,
+          type: 'video/*',
+          flags: IntentLauncher.FLAG_GRANT_READ_URI_PERMISSION,
+        };
+  
+        IntentLauncher.startActivityAsync(intent);
+      } else {
+        // For iOS, open the video with the default player
+        await Linking.openURL(uri);
+      }
+    } catch (err) {
+      console.error('Error opening video file:', err);
+    }
+  };
+
+  const toggleFavorite = async (id: string) => {
+    const newFavorites = favorites.includes(id)
+      ? favorites.filter(fav => fav !== id)
+      : [...favorites, id];
+
+    setFavorites(newFavorites);
+    await AsyncStorage.setItem('favorites', JSON.stringify(newFavorites));
   };
 
   const renderItem = ({ item }: { item: Recording }) => (
-    <TouchableOpacity style={styles.itemContainer} onPress={() => openVideo(item.uri)}>
-      <Image source={{ uri: item.thumbnailUri }} style={styles.thumbnail} />
-      <View style={styles.textContainer}>
+    <View style={styles.itemContainer}>
+      <TouchableOpacity onPress={() => openVideo(item.uri)}>
+        {item.thumbnailUri && (
+          <Image source={{ uri: item.thumbnailUri }} style={styles.thumbnail} />
+        )}
         <Text style={styles.videoName}>{item.filename}</Text>
-        <Text style={styles.creationTime}>{item.creationTime}</Text>
-      </View>
-    </TouchableOpacity>
+        <Text style={styles.creationTime}>{new Date(item.creationTime).toLocaleString()}</Text>
+      </TouchableOpacity>
+      <Button
+        title={favorites.includes(item.id) ? 'Unfavorite' : 'Favorite'}
+        onPress={() => toggleFavorite(item.id)}
+      />
+    </View>
   );
 
   return (
@@ -73,7 +121,7 @@ const RecordingListScreen = () => {
       <FlatList
         data={recordings}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
       />
     </View>
@@ -95,8 +143,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 16,
     borderRadius: 8,
     overflow: 'hidden',
@@ -104,20 +150,16 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   thumbnail: {
-    width: 64,
-    height: 64,
-    marginRight: 16,
-  },
-  textContainer: {
-    flex: 1,
+    width: '100%',
+    height: 200,
+    marginBottom: 8,
   },
   videoName: {
     fontSize: 16,
-    fontWeight: 'bold',
   },
   creationTime: {
-    fontSize: 14,
-    color: '#888',
+    fontSize: 12,
+    color: '#555',
   },
 });
 
